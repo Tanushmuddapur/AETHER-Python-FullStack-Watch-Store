@@ -1,0 +1,99 @@
+{% extends 'base.html' %}
+{% block title %}Shop All Watches — AETHER Catalogue{% endblock %}
+{% block content %}
+  <main style="padding: 52px 0 100px;">
+    <div class="container">
+      <div class="slide-down in-view" style="margin-bottom:32px; display:flex; flex-wrap:wrap; justify-content:space-between; align-items:flex-end; gap:16px;">
+        <div>
+          <span class="eyebrow-pill">COMPLETE HOROLOGICAL ARCHIVE</span>
+          <h1 style="font-size: clamp(2.2rem, 4vw, 3.3rem);">Shop Timepieces</h1>
+        </div>
+        <div style="display:flex; gap:8px; flex-wrap:wrap;">
+          <a href="{% url 'store:shop' %}?collection=all" class="pill-primary-btn">All Collections</a>
+          <a href="{% url 'store:shop' %}?old_money=1" class="pill-badge-btn">Old Money</a>
+          <a href="{% url 'store:shop' %}?audience=Men" class="pill-badge-btn">Men</a>
+          <a href="{% url 'store:shop' %}?audience=Women" class="pill-badge-btn">Women</a>
+          <a href="{% url 'store:shop' %}?audience=Kids" class="pill-badge-btn">Kids</a>
+        </div>
+      </div>
+
+      <div style="display:grid; grid-template-columns: 280px 1fr; gap:28px; align-items:start;">
+        <aside class="glass-card slide-up in-view" style="padding:22px;">
+          <form method="get" action="{% url 'store:shop' %}" style="display:flex; flex-direction:column; gap:13px;">
+            <div><label class="form-label">Search</label><input type="text" name="q" value="{{ filters.q }}" class="aether-input" placeholder="Rolex, Casio, Titan..." /></div>
+            <div>
+              <label class="form-label">Collection</label>
+              <select name="collection" class="aether-select">
+                <option value="all" {% if filters.collection == 'all' %}selected{% endif %}>All Collections (Show All Watches)</option>
+                {% for col in collections %}
+                  <option value="{{ col.slug }}" {% if filters.collection == col.slug %}selected{% endif %}>{{ col.name }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div>
+              <label class="form-label">Brand</label>
+              <select name="brand" class="aether-select">
+                <option value="">All Brands (35+ Maisons)</option>
+                {% for b in brands %}<option value="{{ b }}" {% if filters.brand == b %}selected{% endif %}>{{ b }}</option>{% endfor %}
+              </select>
+            </div>
+            <div>
+              <label class="form-label">Wearer (Men / Women / Kids)</label>
+              <select name="audience" class="aether-select">
+                <option value="all">All</option>
+                {% for val, label in audience_choices %}<option value="{{ val }}" {% if filters.audience == val %}selected{% endif %}>{{ label }}</option>{% endfor %}
+              </select>
+            </div>
+            <div>
+              <label class="form-label">Movement</label>
+              <select name="movement" class="aether-select">
+                <option value="">All Movements</option>
+                {% for val, label in movement_choices %}<option value="{{ val }}" {% if filters.movement == val %}selected{% endif %}>{{ label }}</option>{% endfor %}
+              </select>
+            </div>
+            <div>
+              <label class="form-label">Strap Material</label>
+              <select name="strap" class="aether-select">
+                <option value="">All Straps</option>
+                {% for val, label in strap_choices %}<option value="{{ val }}" {% if filters.strap == val %}selected{% endif %}>{{ label }}</option>{% endfor %}
+              </select>
+            </div>
+            <div>
+              <label class="form-label">Sort By</label>
+              <select name="sort" class="aether-select">
+                <option value="popularity" {% if filters.sort == 'popularity' %}selected{% endif %}>Popularity</option>
+                <option value="price_asc" {% if filters.sort == 'price_asc' %}selected{% endif %}>Price: Low to High</option>
+                <option value="price_desc" {% if filters.sort == 'price_desc' %}selected{% endif %}>Price: High to Low</option>
+                <option value="newest" {% if filters.sort == 'newest' %}selected{% endif %}>Newest</option>
+              </select>
+            </div>
+            <button type="submit" class="pill-primary-btn" style="width:100%;">Apply Filter</button>
+            <a href="{% url 'store:shop' %}?collection=all" class="pill-badge-btn" style="width:100%;">Reset</a>
+          </form>
+        </aside>
+
+        <div>
+          <p style="font-size:0.86rem; color:var(--text-muted); margin-bottom:16px;">
+            Showing {{ page_obj.start_index }}–{{ page_obj.end_index }} of {{ page_obj.paginator.count }} timepieces
+          </p>
+          <div class="watch-grid">
+            {% for watch in page_obj %}
+              {% include '_product_card.html' with watch=watch %}
+            {% empty %}
+              <div class="glass-card" style="padding:40px; grid-column:1/-1; text-align:center;"><h3>No watches matched your filter.</h3></div>
+            {% endfor %}
+          </div>
+
+          {% if page_obj.has_other_pages %}
+            <div style="display:flex; justify-content:center; gap:10px; margin-top:40px;">
+              {% if page_obj.has_previous %}<a href="?page={{ page_obj.previous_page_number }}&collection={{ filters.collection }}&brand={{ filters.brand }}&audience={{ filters.audience }}&sort={{ filters.sort }}" class="pill-badge-btn">← Prev</a>{% endif %}
+              <span class="pill-primary-btn">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+              {% if page_obj.has_next %}<a href="?page={{ page_obj.next_page_number }}&collection={{ filters.collection }}&brand={{ filters.brand }}&audience={{ filters.audience }}&sort={{ filters.sort }}" class="pill-badge-btn">Next →</a>{% endif %}
+            </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </main>
+  <style>@media(max-width:900px){ main .container > div:nth-child(2){ grid-template-columns:1fr !important; } }</style>
+{% endblock %}

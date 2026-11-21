@@ -1,0 +1,73 @@
+<article class="glass-card watch-card slide-up">
+  <div>
+    <div class="watch-media-box"
+         onmouseenter="const v=this.querySelector('video'); if(v) v.play();"
+         onmouseleave="const v=this.querySelector('video'); if(v){v.pause(); v.currentTime=0;}">
+      {% if watch.discount_percentage > 0 %}
+        <span class="discount-badge">-{{ watch.discount_percentage }}% OFF</span>
+      {% endif %}
+      <span class="audience-tag">{{ watch.audience }} · {{ watch.movement_type }}</span>
+
+      {% if user.is_authenticated %}
+        <form method="post" action="{% url 'store:toggle_wishlist' watch.id %}" style="margin:0;">
+          {% csrf_token %}
+          <button type="submit" class="wishlist-heart-btn {% if watch.id in wishlist_product_ids %}saved{% endif %}" title="Wishlist">
+            {% if watch.id in wishlist_product_ids %}♥{% else %}♡{% endif %}
+          </button>
+        </form>
+      {% else %}
+        <a href="{% url 'accounts:login' %}" class="wishlist-heart-btn" title="Sign in to save">♡</a>
+      {% endif %}
+
+      <a href="{% url 'store:product_detail' watch.slug %}">
+        <img class="primary-watch-img" src="{{ watch.get_image }}" alt="{{ watch.brand }} {{ watch.name }}" loading="lazy" />
+        
+      </a>
+    </div>
+
+    <div style="display:flex; justify-content:space-between; font-size:0.75rem; color:var(--secondary-teal); font-weight:700; text-transform:uppercase; letter-spacing:0.06em; margin-bottom:4px;">
+      <span>{{ watch.brand }}</span>
+      <span>★ {{ watch.average_rating }}</span>
+    </div>
+
+    <h3 style="font-size:1.3rem; margin-bottom:5px;">
+      <a href="{% url 'store:product_detail' watch.slug %}">{{ watch.name }}</a>
+    </h3>
+
+    <p style="font-size:0.8rem; color:var(--text-muted); margin-bottom:6px;">
+      {{ watch.strap_material }} · {{ watch.dial_size }}
+    </p>
+
+    <!-- Interactive Color Swatches: Clicking changes watch image & active dial finish -->
+    <div class="card-swatch-row">
+      {% for v in watch.parsed_variants %}
+        <button type="button" class="swatch-circle {% if forloop.first %}active{% endif %}"
+                style="background:{{ v.hex }};"
+                title="{{ v.name }}"
+                onclick="switchCardWatchColor(this, '{{ v.img }}', '{{ v.name }}')"></button>
+      {% endfor %}
+      <span class="active-color-label" style="font-size:0.74rem; color:var(--text-muted); margin-left:4px;">{{ watch.dial_colour }}</span>
+    </div>
+  </div>
+
+  <div>
+    <div style="display:flex; align-items:baseline; gap:10px; margin-bottom:12px;">
+      <strong style="font-size:1.18rem; color:var(--heading-color);">₹{{ watch.price|floatformat:0 }}</strong>
+      {% if watch.original_price and watch.original_price > watch.price %}
+        <span style="font-size:0.86rem; color:var(--text-muted); text-decoration:line-through;">₹{{ watch.original_price|floatformat:0 }}</span>
+      {% endif %}
+    </div>
+
+    <div style="display:grid; grid-template-columns: 1fr auto; gap:8px;">
+      {% if user.is_authenticated %}
+        <form method="post" action="{% url 'store:add_to_cart' watch.id %}" style="margin:0;">
+          {% csrf_token %}
+          <button type="submit" class="pill-primary-btn" style="width:100%; padding:10px 14px; font-size:0.8rem;">Add to Cart</button>
+        </form>
+      {% else %}
+        <a href="{% url 'accounts:login' %}" class="pill-primary-btn" style="padding:10px 14px; font-size:0.8rem;">Add to Cart</a>
+      {% endif %}
+      <a href="{% url 'store:product_detail' watch.slug %}" class="pill-badge-btn">Details</a>
+    </div>
+  </div>
+</article>

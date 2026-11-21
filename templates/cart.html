@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+{% block content %}
+  <main style="padding: 56px 0 100px;"><div class="container">
+    <h1 style="font-size:2.6rem; margin-bottom:24px;">Your Shopping Bag</h1>
+    {% if items %}
+      <div style="display:grid; grid-template-columns: 1.4fr 0.8fr; gap:28px;">
+        <div style="display:flex; flex-direction:column; gap:14px;">
+          {% for item in items %}
+            <div class="glass-card" style="padding:20px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:14px;">
+              <div style="display:flex; gap:14px; align-items:center;">
+                <img src="{{ item.product.get_image }}" style="width:80px; height:80px; border-radius:14px; object-fit:cover;" />
+                <div><strong>{{ item.product.brand }} — {{ item.product.name }}</strong><div style="font-size:0.84rem; color:var(--text-muted);">{{ item.selected_colour }} {{ item.custom_spec }}</div></div>
+              </div>
+              <div style="display:flex; align-items:center; gap:10px;">
+                <form method="post" action="{% url 'store:update_cart_quantity' item.id %}" style="display:flex; gap:6px;">{% csrf_token %}<button type="submit" name="action" value="decrease" class="pill-badge-btn">−</button><strong>{{ item.quantity }}</strong><button type="submit" name="action" value="increase" class="pill-badge-btn">+</button></form>
+                <strong>₹{{ item.line_total|floatformat:0 }}</strong>
+                <form method="post" action="{% url 'store:remove_from_cart' item.id %}">{% csrf_token %}<button type="submit" class="pill-badge-btn">Remove</button></form>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+        <aside class="glass-card" style="padding:26px;">
+          <h2 style="margin-bottom:14px;">Summary</h2>
+          <p>Subtotal: <strong>₹{{ cart.subtotal|floatformat:0 }}</strong></p>
+          <p style="margin:8px 0 18px;">Total: <strong style="font-size:1.4rem;">₹{{ cart.final_total|floatformat:0 }}</strong></p>
+          <a href="{% url 'orders:checkout' %}" class="pill-primary-btn" style="width:100%; padding:13px;">Proceed to Checkout →</a>
+        </aside>
+      </div>
+    {% else %}
+      <div class="glass-card" style="padding:56px; text-align:center;"><h2>Your Bag is Empty</h2><a href="{% url 'store:shop' %}?collection=all" class="pill-primary-btn" style="margin-top:14px;">Shop Watches</a></div>
+    {% endif %}
+  </div></main>
+{% endblock %}

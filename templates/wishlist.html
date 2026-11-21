@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+{% block content %}
+  <main style="padding: 56px 0 100px;"><div class="container">
+    <h1 style="font-size:2.6rem; margin-bottom:24px;">Your Wishlist</h1>
+    {% if items %}
+      <div class="watch-grid">
+        {% for item in items %}
+          <article class="glass-card watch-card">
+            <div><div class="watch-media-box"><img src="{{ item.product.get_image }}" /></div><h3>{{ item.product.brand }} {{ item.product.name }}</h3><strong>₹{{ item.product.price|floatformat:0 }}</strong></div>
+            <div style="display:flex; flex-direction:column; gap:8px; margin-top:12px;">
+              <form method="post" action="{% url 'store:move_wishlist_to_cart' item.id %}">{% csrf_token %}<button type="submit" class="pill-primary-btn" style="width:100%;">Move to Cart</button></form>
+              <form method="post" action="{% url 'store:toggle_wishlist' item.product.id %}">{% csrf_token %}<button type="submit" class="pill-badge-btn" style="width:100%;">Remove</button></form>
+            </div>
+          </article>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="glass-card" style="padding:56px; text-align:center;"><h2>No Saved Watches</h2><a href="{% url 'store:shop' %}?collection=all" class="pill-primary-btn" style="margin-top:14px;">Explore Catalogue</a></div>
+    {% endif %}
+  </div></main>
+{% endblock %}

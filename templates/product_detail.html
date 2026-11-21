@@ -1,0 +1,123 @@
+{% extends 'base.html' %}
+{% block title %}{{ product.brand }} {{ product.name }} | AETHER{% endblock %}
+{% block content %}
+  <main style="padding: 44px 0 100px;">
+    <div class="container">
+      <nav style="font-size:0.82rem; color:var(--text-muted); margin-bottom:22px;">
+        <a href="{% url 'store:home' %}">Home</a> /
+        <a href="{% url 'store:shop' %}?collection={{ product.category.slug }}">{{ product.category.name }}</a> /
+        <strong>{{ product.brand }} — {{ product.name }}</strong>
+      </nav>
+
+      <div class="fk-detail-grid" style="margin-bottom:68px;">
+        <!-- Sticky Left Gallery with Dial, Movement & Strap Thumbnails -->
+        <div class="fk-gallery-sticky fade-scale in-view">
+          <div class="fk-thumb-col">
+            <img src="{{ product.get_image }}" class="fk-thumb active" onmouseover="swapFkImage(this, '{{ product.get_image }}', '{{ product.brand }} — Primary Dial')" onclick="swapFkImage(this, '{{ product.get_image }}', '{{ product.brand }} — Primary Dial')" />
+            {% for img in product.gallery_images.all %}
+              <img src="{{ img.get_image }}" class="fk-thumb" onmouseover="swapFkImage(this, '{{ img.get_image }}', '{{ img.caption|escapejs }}')" onclick="swapFkImage(this, '{{ img.get_image }}', '{{ img.caption|escapejs }}')" />
+            {% endfor %}
+          </div>
+
+          <div class="glass-card" style="padding:18px;">
+            <div style="border-radius:18px; overflow:hidden; background:var(--deep-charcoal); margin-bottom:10px;">
+              <img id="fk-main-image" src="{{ product.get_image }}" alt="{{ product.name }}" style="width:100%; height:390px; object-fit:cover; transition:opacity 0.2s ease;" />
+            </div>
+            <p id="fk-image-caption" style="font-size:0.78rem; color:var(--text-muted); text-align:center; margin-bottom:14px;">
+              {{ product.brand }} — {{ product.dial_detail_note }}
+            </p>
+
+            {% if user.is_authenticated %}
+              <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+                <button type="submit" form="acquire-form" class="pill-metallic-btn" style="padding:13px;">🛍 Add to Cart</button>
+                <button type="submit" form="acquire-form" name="buy_now" value="1" class="pill-primary-btn" style="padding:13px;">⚡ Book Now</button>
+              </div>
+            {% else %}
+              <a href="{% url 'accounts:login' %}?next={{ request.path }}" class="pill-primary-btn" style="width:100%; padding:13px;">Sign In to Book Watch</a>
+            {% endif %}
+          </div>
+        </div>
+
+        <!-- Right Product Details, Interactive Color Swatches, Strap/Dial Architecture & Card Offers -->
+        <div class="slide-up in-view">
+          <span class="eyebrow-pill">{{ product.brand }} · {{ product.brand_tier }}</span>
+          <h1 style="font-size:clamp(2rem, 3.6vw, 2.9rem); margin-bottom:10px;">{{ product.name }}</h1>
+
+          <div style="display:flex; align-items:center; gap:12px; margin-bottom:16px; font-size:0.86rem;">
+            <span style="padding:4px 11px; border-radius:999px; background:var(--midnight-teal); color:var(--warm-ivory); font-weight:700;">{{ product.average_rating }} ★</span>
+            <span>{{ product.audience }} Edition · {{ product.movement_type }}</span>
+            <span style="color:var(--secondary-teal); font-weight:700;">● {{ product.stock }} In Vault</span>
+          </div>
+
+          <div style="display:flex; align-items:baseline; gap:14px; margin-bottom:14px;">
+            <span style="font-size:2rem; font-weight:700;">₹{{ product.price|floatformat:0 }}</span>
+            {% if product.original_price and product.original_price > product.price %}
+              <span style="text-decoration:line-through; color:var(--text-muted);">₹{{ product.original_price|floatformat:0 }}</span>
+              <span style="color:var(--secondary-teal); font-weight:700;">{{ product.discount_percentage }}% off</span>
+            {% endif %}
+          </div>
+
+          <!-- Interactive Color Selector (Changes Main Watch Image & Selected Color Input) -->
+          <div class="glass-card" style="padding:18px; margin-bottom:18px;">
+            <span class="form-label">Select Dial &amp; Case Colorway (Click to Preview)</span>
+            <div style="display:flex; flex-wrap:wrap; gap:10px; margin-top:8px;">
+              {% for v in product.parsed_variants %}
+                <button type="button" class="pill-badge-btn" onclick="swapFkImage(this, '{{ v.img }}', '{{ product.brand }} — {{ v.name }} Edition'); document.getElementById('sel-colour-input').value='{{ v.name }}';">
+                  <span style="width:14px; height:14px; border-radius:50%; background:{{ v.hex }}; border:1px solid #888;"></span>
+                  {{ v.name }}
+                </button>
+              {% endfor %}
+            </div>
+          </div>
+
+          <!-- Bank & Privilege Card Offers -->
+          <div class="offer-box">
+            <strong style="display:block; margin-bottom:8px;">Available Card &amp; Privilege Offers</strong>
+            <div class="offer-item"><span class="offer-tag">BANK OFFER</span><span>15% Instant Off on HDFC / ICICI Infinite Cards up to ₹40,000 — Code: <strong>HDFC15</strong></span></div>
+            <div class="offer-item"><span class="offer-tag">VAULT CARD</span><span>10% Instant Off on AETHER Digital Settlement — Code: <strong>AETHER10</strong></span></div>
+            <div class="offer-item" style="margin-bottom:0;"><span class="offer-tag">WELCOME</span><span>Flat ₹5,000 Off on First Watch Order — Code: <strong>FIRST5000</strong></span></div>
+          </div>
+
+          <form id="acquire-form" method="post" action="{% url 'store:add_to_cart' product.id %}" class="glass-card" style="padding:22px; margin-bottom:20px;">
+            {% csrf_token %}
+            <div style="display:grid; grid-template-columns:1fr 100px; gap:12px;">
+              <div>
+                <label class="form-label">Selected Color / Theme</label>
+                <input type="text" name="selected_colour" id="sel-colour-input" value="{{ product.dial_colour }}" class="aether-input" />
+              </div>
+              <div>
+                <label class="form-label">Qty</label>
+                <input type="number" name="quantity" value="1" min="1" max="{{ product.stock|default:1 }}" class="aether-input" />
+              </div>
+            </div>
+          </form>
+
+          <!-- Brand-Specific Strap & Dial Architecture -->
+          <div class="glass-card" style="padding:24px;">
+            <h3 style="font-size:1.35rem; margin-bottom:10px;">{{ product.brand }} Craftsmanship &amp; Specifications</h3>
+            <p style="color:var(--text-muted); margin-bottom:18px;">{{ product.description }}</p>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; font-size:0.88rem;">
+              <div><span style="color:var(--text-muted); display:block;">Dial Architecture</span><strong>{{ product.dial_detail_note }}</strong></div>
+              <div><span style="color:var(--text-muted); display:block;">Strap &amp; Clasp</span><strong>{{ product.strap_material }} ({{ product.strap_detail_note }})</strong></div>
+              <div><span style="color:var(--text-muted); display:block;">Case Material</span><strong>{{ product.case_material }}</strong></div>
+              <div><span style="color:var(--text-muted); display:block;">Movement</span><strong>{{ product.movement_type }}</strong></div>
+              <div><span style="color:var(--text-muted); display:block;">Diameter</span><strong>{{ product.dial_size }}</strong></div>
+              <div><span style="color:var(--text-muted); display:block;">Water Resistance</span><strong>{{ product.water_resistance }}</strong></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {% if related_products %}
+        <section class="slide-up">
+          <h2 style="font-size:2rem; margin-bottom:22px;">More From {{ product.brand }} &amp; {{ product.category.name }}</h2>
+          <div class="watch-grid">
+            {% for rel in related_products %}
+              {% include '_product_card.html' with watch=rel %}
+            {% endfor %}
+          </div>
+        </section>
+      {% endif %}
+    </div>
+  </main>
+{% endblock %}

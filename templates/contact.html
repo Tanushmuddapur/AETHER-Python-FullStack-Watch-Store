@@ -1,0 +1,129 @@
+{% extends 'base.html' %}
+
+{% block title %}Concierge, Support &amp; Order Resolution — AETHER{% endblock %}
+
+{% block extra_head %}
+<style>
+  .concierge-grid { display: grid; grid-template-columns: 1.15fr 0.85fr; gap: 28px; align-items: start; }
+  @media (max-width: 880px) { .concierge-grid { grid-template-columns: 1fr; } }
+  .support-banner {
+    background: linear-gradient(135deg, var(--midnight-teal) 0%, var(--secondary-teal) 60%, var(--deep-charcoal) 100%);
+    color: var(--warm-ivory); border-radius: 24px; padding: 24px 26px; margin-bottom: 24px;
+    border: 1px solid rgba(220, 229, 224, 0.25); box-shadow: 0 20px 44px rgba(16, 43, 42, 0.25);
+  }
+  .support-mail-pill {
+    display: inline-flex; align-items: center; gap: 8px; margin-top: 10px; padding: 8px 16px;
+    border-radius: 9999px; background: rgba(243, 240, 232, 0.14); border: 1px solid rgba(220, 229, 224, 0.35);
+    color: var(--mist-accent); font-size: 0.86rem; font-weight: 600; transition: all 0.3s ease;
+  }
+  .support-mail-pill:hover { transform: translateY(-2px); background: rgba(243, 240, 232, 0.24); }
+  .issue-preset-grid { display: flex; flex-wrap: wrap; gap: 8px; margin: 8px 0 18px; }
+  .issue-chip {
+    padding: 7px 13px; border-radius: 9999px; border: 1px solid rgba(16, 43, 42, 0.2);
+    background: rgba(220, 229, 224, 0.35); color: var(--heading-color); font-size: 0.78rem; font-weight: 600;
+    cursor: pointer; transition: all 0.28s ease;
+  }
+  .issue-chip:hover, .issue-chip.active { background: var(--midnight-teal); color: var(--warm-ivory); border-color: var(--midnight-teal); transform: translateY(-2px); }
+  .concierge-form p { margin-bottom: 14px; }
+  .concierge-form label { display: block; font-size: 0.76rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted); margin-bottom: 6px; }
+  .faq-accordion { display: flex; flex-direction: column; gap: 12px; }
+  .faq-item { border-radius: 16px; background: rgba(16, 43, 42, 0.06); border: 1px solid rgba(184, 196, 194, 0.25); padding: 14px 16px; }
+  .faq-item summary { font-weight: 700; font-size: 0.9rem; color: var(--heading-color); cursor: pointer; list-style: none; display: flex; justify-content: space-between; align-items: center; }
+  .faq-item summary::after { content: "+"; font-size: 1.1rem; color: var(--secondary-teal); }
+  .faq-item[open] summary::after { content: "−"; }
+  .faq-item p { margin-top: 8px; font-size: 0.84rem; color: var(--text-muted); line-height: 1.55; }
+</style>
+{% endblock %}
+
+{% block content %}
+  <main style="padding:64px 0 104px;">
+    <div class="container" style="max-width:1080px;">
+      <div class="slide-down in-view" style="margin-bottom:32px;">
+        <span class="eyebrow-pill">PRIVATE CLIENT CONCIERGE &amp; DISPATCH RESOLUTION</span>
+        <h1 style="font-size:clamp(2.3rem, 4.2vw, 3.3rem); margin-bottom:8px;">Concierge &amp; Contact</h1>
+        <p style="color:var(--text-muted); max-width:640px;">
+          Need assistance with a delayed watch delivery, payment confirmation, or false delivered status? Select an issue preset below or email our priority resolution desk directly.
+        </p>
+      </div>
+
+      <div class="concierge-grid">
+        <div class="glass-card slide-up in-view" style="padding:32px;">
+          <span class="form-label">Quick-Select Order / Payment Issue</span>
+          <div class="issue-preset-grid">
+            <button type="button" class="issue-chip" onclick="selectSupportIssue(this, 'Watch Not Delivered Yet', 'Hello AETHER Concierge,\n\nMy watch order has not been delivered within the expected schedule. Order ID: ATH-')">
+              ⌚ Watch Not Delivered
+            </button>
+            <button type="button" class="issue-chip" onclick="selectSupportIssue(this, 'Payment Done — Order Pending / Not Confirmed', 'Hello AETHER Concierge,\n\nMy payment has been debited successfully, but my order status is not reflecting payment confirmation. Order ID / Transaction Ref: ')">
+              💳 Payment Done, Not Updated
+            </button>
+            <button type="button" class="issue-chip" onclick="selectSupportIssue(this, 'Marked Delivered But Watch Not Received', 'Hello AETHER Concierge,\n\nMy tracking shows Delivered, however I have not physically received the timepiece package at my address. Order ID: ATH-')">
+              📦 Delivered Msg, Watch Not Received
+            </button>
+            <button type="button" class="issue-chip" onclick="selectSupportIssue(this, 'Wrong Color / Custom Mix Strap Inquiry', 'Hello AETHER Concierge,\n\nI would like assistance regarding my watch dial/strap customization. Order ID: ATH-')">
+              ✦ Bespoke / Strap Support
+            </button>
+          </div>
+
+          <form method="post" class="concierge-form" style="display:flex; flex-direction:column; gap:6px;">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit" class="pill-primary-btn" style="padding:14px 24px; margin-top:6px;">Send Priority Dispatch →</button>
+          </form>
+        </div>
+
+        <div class="slide-up in-view">
+          <div class="support-banner">
+            <span style="font-size:0.72rem; letter-spacing:0.16em; text-transform:uppercase; color:var(--platinum);">24/7 CLIENT ESCALATION DESK</span>
+            <h2 style="color:var(--warm-ivory); font-size:1.65rem; margin-top:6px;">Direct Support Mail</h2>
+            <p style="font-size:0.86rem; color:var(--platinum); margin-top:6px; line-height:1.55;">
+              For urgent courier escalations, payment receipts, or insured handover verification, write directly to our specialists:
+            </p>
+            <div style="display:flex; flex-direction:column; gap:8px; margin-top:8px;">
+              <a href="mailto:support@aetherhorology.com" class="support-mail-pill">✉ support@aetherhorology.com</a>
+              <a href="mailto:concierge@aether.ch" class="support-mail-pill">✉ concierge@aether.ch (Geneva &amp; India Vault)</a>
+            </div>
+            <p style="font-size:0.78rem; color:var(--mist-accent); margin-top:14px;">
+              Priority Helpline: +91 80 4120 8800 · Average Response Time: Under 2 Hours
+            </p>
+          </div>
+
+          <div class="glass-card" style="padding:26px;">
+            <h3 style="font-size:1.45rem; margin-bottom:14px;">Delivery &amp; Payment Help</h3>
+            <div class="faq-accordion">
+              <details class="faq-item" open>
+                <summary>Tracking says "Delivered" but I haven't received my watch?</summary>
+                <p>Click <strong>"Delivered Msg, Watch Not Received"</strong> on the left with your Order ID—our armored courier team will verify GPS handover logs and initiate immediate replacement or trace within 24 hours.</p>
+              </details>
+              <details class="faq-item">
+                <summary>Payment was deducted, what happens next?</summary>
+                <p>Share your Order ID or payment reference via the form or email <strong>support@aetherhorology.com</strong> for instant manual ledger verification.</p>
+              </details>
+              <details class="faq-item">
+                <summary>Watch delivery is delayed beyond estimated date?</summary>
+                <p>Submit your Order ID using <strong>"Watch Not Delivered"</strong> for live courier telemetry.</p>
+              </details>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      document.querySelectorAll('.concierge-form input, .concierge-form textarea').forEach(el => {
+        if (el.tagName.toLowerCase() === 'textarea') el.classList.add('aether-textarea');
+        else if (el.type !== 'hidden') el.classList.add('aether-input');
+      });
+    });
+
+    function selectSupportIssue(btn, subjectText, messageTemplate) {
+      document.querySelectorAll('.issue-chip').forEach(c => c.classList.remove('active'));
+      btn.classList.add('active');
+      const subjInput = document.querySelector('input[name="subject"]');
+      const msgInput = document.querySelector('textarea[name="message"]');
+      if (subjInput) subjInput.value = subjectText;
+      if (msgInput) { msgInput.value = messageTemplate; msgInput.focus(); }
+    }
+  </script>
+{% endblock %}

@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+{% block content %}
+  <main style="padding: 56px 0 100px;"><div class="container">
+    <h1 style="font-size:2.5rem; margin-bottom:24px;">Checkout &amp; Card Offers</h1>
+    <form method="post" style="display:grid; grid-template-columns: 1.3fr 0.9fr; gap:28px;">
+      {% csrf_token %}
+      <div class="glass-card" style="padding:28px; display:flex; flex-direction:column; gap:14px;">
+        <input type="text" name="full_name" value="{{ form.full_name.value|default:'' }}" class="aether-input" placeholder="Full Name" required />
+        <input type="email" name="email" value="{{ form.email.value|default:'' }}" class="aether-input" placeholder="Email" required />
+        <input type="text" name="phone_number" value="{{ form.phone_number.value|default:'' }}" class="aether-input" placeholder="Phone" required />
+        <textarea name="delivery_address" rows="2" class="aether-textarea" placeholder="Street Address" required>{{ form.delivery_address.value|default:'' }}</textarea>
+        <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px;">
+          <input type="text" name="city" value="{{ form.city.value|default:'' }}" class="aether-input" placeholder="City" required />
+          <input type="text" name="state" value="{{ form.state.value|default:'' }}" class="aether-input" placeholder="State" required />
+          <input type="text" name="postal_code" value="{{ form.postal_code.value|default:'' }}" class="aether-input" placeholder="PIN" required />
+        </div>
+        <div class="offer-box">
+          <strong>Card &amp; Privilege Offers</strong>
+          <div style="display:flex; gap:8px; flex-wrap:wrap; margin:10px 0;">
+            <button type="button" class="pill-badge-btn" onclick="document.getElementById('off-inp').value='HDFC15'">HDFC15 (15% Card Off)</button>
+            <button type="button" class="pill-badge-btn" onclick="document.getElementById('off-inp').value='AETHER10'">AETHER10 (10% Off)</button>
+            <button type="button" class="pill-badge-btn" onclick="document.getElementById('off-inp').value='FIRST5000'">FIRST5000 (₹5,000 Off)</button>
+          </div>
+          <input type="text" name="offer_code" id="off-inp" class="aether-input" placeholder="Enter or click an offer code" />
+        </div>
+        <label><input type="radio" name="payment_method" value="SIMULATED_CARD" checked /> Credit / Debit Card / UPI (Simulated)</label>
+        <label><input type="radio" name="payment_method" value="COD" /> Cash on Delivery</label>
+      </div>
+      <aside class="glass-card" style="padding:28px;">
+        <h2>Order Total: ₹{{ cart.final_total|floatformat:0 }}</h2>
+        <button type="submit" class="pill-primary-btn" style="width:100%; padding:14px; margin-top:20px;">Confirm Booking</button>
+      </aside>
+    </form>
+  </div></main>
+{% endblock %}

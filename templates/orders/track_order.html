@@ -1,0 +1,125 @@
+{% extends 'base.html' %}
+{% block title %}Track Order — AETHER Horology{% endblock %}
+
+{% block extra_head %}
+<style>
+  .track-glass-box {
+    background: var(--surface-card);
+    backdrop-filter: blur(28px) saturate(190%);
+    -webkit-backdrop-filter: blur(28px) saturate(190%);
+    border: 1px solid var(--surface-border);
+    border-radius: 30px;
+    padding: 34px;
+    box-shadow: 0 24px 54px -16px rgba(16, 43, 42, 0.22);
+  }
+  .stepper-track {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 10px;
+    margin: 28px 0;
+  }
+  @media (max-width: 680px) { .stepper-track { grid-template-columns: 1fr; } }
+  .step-node {
+    padding: 14px 12px;
+    border-radius: 18px;
+    text-align: center;
+    border: 1px solid rgba(184, 196, 194, 0.28);
+    background: rgba(16, 43, 42, 0.05);
+    transition: all 0.35s ease;
+  }
+  .step-node.done {
+    background: var(--midnight-teal);
+    color: var(--warm-ivory);
+    border-color: var(--platinum);
+    box-shadow: 0 10px 24px rgba(16, 43, 42, 0.25);
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+  <main style="padding: 56px 0 104px;">
+    <div class="container" style="max-width:920px;">
+      <div class="slide-down in-view" style="margin-bottom:32px; text-align:center;">
+        <span class="eyebrow-pill">INSURED ARMORED COURIER TELEMETRY</span>
+        <h1 style="font-size: clamp(2.2rem, 4.2vw, 3.3rem); margin-bottom:10px;">Track Your Timepiece</h1>
+        <p style="color:var(--text-muted);">Enter your AETHER Order ID (e.g. <strong>ATH-8A91C2</strong>) to inspect live dispatch &amp; handover status.</p>
+      </div>
+
+      <!-- Search Box -->
+      <div class="track-glass-box slide-up in-view" style="margin-bottom:28px;">
+        <form method="get" action="{% url 'orders:track_order' %}" style="display:flex; flex-wrap:wrap; gap:12px;">
+          <input type="text" name="order_number" value="{{ query_order }}" class="aether-input" style="flex:1; min-width:220px;" placeholder="Enter Order ID (e.g. ATH-XXXXXXXX)" required />
+          <button type="submit" class="pill-primary-btn" style="padding:13px 28px;">Track Order →</button>
+        </form>
+
+        {% if user_orders %}
+          <div style="margin-top:18px; display:flex; flex-wrap:wrap; align-items:center; gap:8px;">
+            <span style="font-size:0.78rem; color:var(--text-muted); font-weight:700;">YOUR RECENT ORDERS:</span>
+            {% for uo in user_orders %}
+              <a href="?order_number={{ uo.order_number }}" class="pill-badge-btn" style="padding:5px 12px; font-size:0.76rem;">
+                {{ uo.order_number }} ({{ uo.status }})
+              </a>
+            {% endfor %}
+          </div>
+        {% endif %}
+      </div>
+
+      {% if tracked_order %}
+        <div class="track-glass-box fade-scale in-view">
+          <div style="display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:14px; border-bottom:1px solid rgba(184,196,194,0.25); padding-bottom:18px;">
+            <div>
+              <span class="eyebrow-pill" style="margin-bottom:6px;">{{ tracked_order.payment_status }}</span>
+              <h2 style="font-size:2rem;">Order {{ tracked_order.order_number }}</h2>
+              <p style="font-size:0.86rem; color:var(--text-muted);">Placed on {{ tracked_order.created_at|date:"F d, Y · H:i" }}</p>
+            </div>
+            <div style="text-align:right;">
+              <span style="font-size:0.78rem; color:var(--text-muted); display:block;">CURRENT STATUS</span>
+              <strong style="font-size:1.35rem; color:var(--secondary-teal);">{{ tracked_order.status }}</strong>
+            </div>
+          </div>
+
+          {% if tracked_order.status == 'Cancelled' %}
+            <div style="margin:24px 0; padding:18px; border-radius:18px; background:rgba(220,80,80,0.14); color:#C94A4A; font-weight:600; text-align:center;">
+              This order was cancelled. Contact support@aetherhorology.com if you need assistance.
+            </div>
+          {% else %}
+            <div class="stepper-track">
+              {% for st in stages %}
+                <div class="step-node {% if forloop.counter0 <= current_stage_idx %}done{% endif %}">
+                  <div style="font-size:0.72rem; opacity:0.75;">STEP 0{{ forloop.counter }}</div>
+                  <strong style="font-size:0.9rem;">{{ st }}</strong>
+                </div>
+              {% endfor %}
+            </div>
+          {% endif %}
+
+          <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap:20px; margin-top:16px;">
+            <div style="padding:18px; border-radius:18px; background:rgba(16,43,42,0.06);">
+              <span class="form-label">Timepieces in Shipment</span>
+              {% for item in tracked_order.items.all %}
+                <div style="font-size:0.9rem; margin-bottom:6px;">
+                  <strong>{{ item.product_name }}</strong> × {{ item.quantity }}
+                  <div style="font-size:0.78rem; color:var(--text-muted);">{{ item.selected_colour }} {{ item.custom_spec }}</div>
+                </div>
+              {% endfor %}
+            </div>
+
+            <div style="padding:18px; border-radius:18px; background:rgba(16,43,42,0.06);">
+              <span class="form-label">Delivery Destination</span>
+              <p style="font-size:0.9rem;"><strong>{{ tracked_order.full_name }}</strong> · {{ tracked_order.phone_number }}</p>
+              <p style="font-size:0.84rem; color:var(--text-muted); margin-top:4px;">
+                {{ tracked_order.delivery_address }}, {{ tracked_order.city }}, {{ tracked_order.state }} - {{ tracked_order.postal_code }}
+              </p>
+              <div style="margin-top:10px; font-weight:700;">Total Settled: ₹{{ tracked_order.final_amount|floatformat:0 }}</div>
+            </div>
+          </div>
+
+          <div style="margin-top:22px; display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:12px;">
+            <a href="{% url 'store:contact' %}" class="pill-badge-btn">Need Help With This Delivery?</a>
+            <a href="{% url 'orders:order_detail' tracked_order.order_number %}" class="pill-primary-btn">View Full Dossier →</a>
+          </div>
+        </div>
+      {% endif %}
+    </div>
+  </main>
+{% endblock %}

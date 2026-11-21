@@ -1,0 +1,159 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <!-- HERO SECTION WITH FLAGSHIP WATCH IMAGE -->
+  <section style="padding: 56px 0 92px; background: radial-gradient(circle at 18% 20%, rgba(36, 68, 65, 0.16), transparent 45%), var(--page-bg);">
+    <div class="container">
+      <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap:44px; align-items:center;">
+        <div>
+          <span class="eyebrow-pill slide-down in-view">AETHER HOROLOGY · GENÈVE &amp; INDIA</span>
+          <h1 class="slide-up in-view" style="font-size: clamp(3rem, 6vw, 5.2rem); margin-bottom:14px;">BEYOND TIME.</h1>
+          <p class="slide-up in-view" style="font-family:var(--font-serif); font-style:italic; font-size:1.65rem; color:var(--secondary-teal); margin-bottom:16px;">
+            Precision. Elegance. Timeless Identity.
+          </p>
+          <p class="slide-up in-view" style="color:var(--text-muted); font-size:1.02rem; max-width:540px; margin-bottom:30px;">
+            From everyday icons like Casio, Titan, and Seiko to Old Money heirlooms and solid platinum Patek Philippe &amp; Rolex grand complications.
+          </p>
+
+          <div style="display:flex; flex-wrap:wrap; gap:12px;" class="slide-up in-view">
+            <a href="#collections" class="pill-primary-btn" style="padding:14px 26px;">Explore Collections</a>
+            <a href="{% url 'store:shop' %}?collection=all" class="pill-metallic-btn" style="padding:14px 26px;">Shop All Watches</a>
+            {% if user.is_authenticated %}
+              <a href="{% url 'store:premium_watches' %}" class="pill-badge-btn" style="padding:13px 22px;">✦ Explore Premium Watches</a>
+            {% else %}
+              <a href="{% url 'accounts:register' %}" class="pill-badge-btn" style="padding:13px 22px;">Get Started</a>
+            {% endif %}
+          </div>
+        </div>
+
+        <!-- Flagship Pinterest Watch Image Showcase -->
+        <div class="fade-scale in-view" style="border-radius:30px; overflow:hidden; border:1px solid var(--surface-border); background:var(--deep-charcoal); box-shadow:0 34px 80px -20px rgba(16, 43, 42, 0.38);">
+          <div style="position:relative; height:460px; overflow:hidden; background:#0D1312;">
+            <img
+              src="https://images.unsplash.com/photo-1614164185128-e4ec99c436d7?auto=format&fit=crop&w=1200&q=90"
+              alt="Fossil Mechanical Skeleton Watch — AETHER Horology"
+              style="width:100%; height:100%; object-fit:cover; display:block; transition:transform 0.7s ease;"
+              onmouseover="this.style.transform='scale(1.04)'"
+              onmouseout="this.style.transform='scale(1)'"
+            />
+          </div>
+          <div style="padding:18px 24px; background:var(--midnight-teal); color:var(--warm-ivory); display:flex; justify-content:space-between; align-items:center;">
+            <span style="font-size:0.78rem; letter-spacing:0.14em; text-transform:uppercase;">FOSSIL MECHANICAL SKELETON · CALIBRE EDITION</span>
+            <a href="{% url 'store:shop' %}?collection=all" style="color:var(--mist-accent); font-size:0.84rem; font-weight:700;">Browse Catalogue →</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- POST-SIGN-IN PREMIUM VAULT BANNER -->
+  {% if user.is_authenticated %}
+    <section style="padding: 12px 0 36px;">
+      <div class="container">
+        <div class="slide-up" style="border-radius:30px; padding:34px 38px; background:linear-gradient(135deg, #102B2A 0%, #244441 55%, #17201F 100%); color:var(--warm-ivory); display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:20px;">
+          <div>
+            <span class="eyebrow-pill" style="background:rgba(255,255,255,0.14); color:var(--mist-accent);">MEMBER VAULT UNLOCKED</span>
+            <h2 style="color:var(--warm-ivory); font-size:2.1rem; margin-bottom:6px;">Explore Premium Watches &amp; Mix-and-Match Brand Atelier</h2>
+            <p style="color:var(--platinum); font-size:0.94rem;">Discover Rolex, Patek Philippe, Audemars Piguet, Omega, Cartier, Richard Mille &amp; build your own hybrid timepiece.</p>
+          </div>
+          <a href="{% url 'store:premium_watches' %}" class="pill-metallic-btn" style="padding:14px 28px;">✦ Enter Premium Vault →</a>
+        </div>
+      </div>
+    </section>
+  {% endif %}
+
+  <!-- CURATED BRAND TIERS & COLLECTIONS -->
+  <section id="collections" class="section-pad">
+    <div class="container">
+      <div class="editorial-header slide-up">
+        <span class="eyebrow-pill">HOROLOGICAL TIERS</span>
+        <h2>Every Era &amp; Tier of Watchmaking</h2>
+        <p>From everyday digital icons to Old Money dress pieces and Swiss Haute Horlogerie.</p>
+      </div>
+
+      <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap:22px;">
+        {% for col in collections %}
+          <div class="glass-card slide-up" style="overflow:hidden; display:flex; flex-direction:column; justify-content:space-between;">
+            <div style="height:190px; overflow:hidden; background:var(--deep-charcoal);">
+              <img src="{{ col.get_image }}" alt="{{ col.name }}" style="width:100%; height:100%; object-fit:cover;" />
+            </div>
+            <div style="padding:22px;">
+              <h3 style="font-size:1.4rem; margin-bottom:8px;">{{ col.name }}</h3>
+              <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:16px;">{{ col.description|truncatewords:16 }}</p>
+              <a href="{% url 'store:shop' %}?collection={{ col.slug }}" class="pill-primary-btn">Explore Tier →</a>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+  </section>
+
+  <!-- OLD MONEY WATCHES SECTION -->
+  <section id="old-money" class="section-pad section-mist">
+    <div class="container">
+      <div class="editorial-header slide-up">
+        <span class="eyebrow-pill">QUIET LUXURY · GENERATIONAL HERITAGE</span>
+        <h2>Old Money Watches</h2>
+        <p>Understated rectangular cases, Roman numerals, moonphases, and hand-stitched alligator straps from Cartier, Jaeger-LeCoultre, Breguet, and Longines.</p>
+      </div>
+      <div class="watch-grid">
+        {% for watch in old_money_watches %}
+          {% include '_product_card.html' with watch=watch %}
+        {% endfor %}
+      </div>
+      <div style="text-align:center; margin-top:34px;">
+        <a href="{% url 'store:shop' %}?old_money=1" class="pill-metallic-btn">View All Old Money Watches →</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- CURATED FOR MEN, WOMEN & KIDS -->
+  <section id="audiences" class="section-pad">
+    <div class="container">
+      <div class="editorial-header slide-up">
+        <span class="eyebrow-pill">CURATED BY WEARER</span>
+        <h2>Timepieces for Men, Women &amp; Kids</h2>
+        <p>Explore dedicated horological selections tailored for every wrist and occasion.</p>
+      </div>
+
+      <!-- MEN -->
+      <div style="margin-bottom:56px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+          <h3 style="font-size:1.9rem;">Men's Collection</h3>
+          <a href="{% url 'store:shop' %}?audience=Men" class="pill-badge-btn">View All Men's →</a>
+        </div>
+        <div class="watch-grid">
+          {% for watch in men_watches %}
+            {% include '_product_card.html' with watch=watch %}
+          {% endfor %}
+        </div>
+      </div>
+
+      <!-- WOMEN -->
+      <div style="margin-bottom:56px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+          <h3 style="font-size:1.9rem;">Women's Collection</h3>
+          <a href="{% url 'store:shop' %}?audience=Women" class="pill-badge-btn">View All Women's →</a>
+        </div>
+        <div class="watch-grid">
+          {% for watch in women_watches %}
+            {% include '_product_card.html' with watch=watch %}
+          {% endfor %}
+        </div>
+      </div>
+
+      <!-- KIDS -->
+      <div>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+          <h3 style="font-size:1.9rem;">Kids &amp; Youth Collection</h3>
+          <a href="{% url 'store:shop' %}?audience=Kids" class="pill-badge-btn">View All Kids' →</a>
+        </div>
+        <div class="watch-grid">
+          {% for watch in kids_watches %}
+            {% include '_product_card.html' with watch=watch %}
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </section>
+{% endblock %}

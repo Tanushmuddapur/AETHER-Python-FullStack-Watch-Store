@@ -1,0 +1,94 @@
+{% extends 'base.html' %}
+{% block title %}Admin Console — AETHER Horology{% endblock %}
+
+{% block content %}
+  <main style="padding: 48px 0 100px;">
+    <div class="container">
+      <div class="glass-card fade-scale in-view" style="padding:32px; margin-bottom:28px;">
+        <div style="display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:16px; margin-bottom:26px;">
+          <div>
+            <span class="eyebrow-pill">AETHER SPATIAL COMMAND CENTER</span>
+            <h1 style="font-size:clamp(1.9rem, 3.5vw, 2.7rem);">Welcome, Admin {{ user.first_name|default:user.username }}</h1>
+          </div>
+          <div style="display:flex; gap:10px;">
+            <a href="{% url 'store:premium_watches' %}" class="pill-metallic-btn">✦ Premium Vault</a>
+            <a href="{% url 'store:shop' %}?collection=all" class="pill-badge-btn">View Catalogue ↗</a>
+          </div>
+        </div>
+
+        <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap:16px;">
+          <div class="glass-card" style="padding:20px;"><span class="form-label">Total Revenue</span><div style="font-size:2rem; font-weight:700;">₹{{ total_revenue|floatformat:0 }}</div></div>
+          <div class="glass-card" style="padding:20px;"><span class="form-label">Total Watches</span><div style="font-size:2rem; font-weight:700;">{{ products.count }}</div></div>
+          <div class="glass-card" style="padding:20px;"><span class="form-label">Orders</span><div style="font-size:2rem; font-weight:700;">{{ orders.count }}</div></div>
+          <div class="glass-card" style="padding:20px;"><span class="form-label">Users</span><div style="font-size:2rem; font-weight:700;">{{ users.count }}</div></div>
+        </div>
+      </div>
+
+      <!-- Watch CRUD Form -->
+      <section class="glass-card slide-up" style="padding:30px; margin-bottom:28px;">
+        <h2 style="font-size:1.7rem; margin-bottom:16px;">Add / Edit Watch (with Tier, Men/Women/Kids, Old Money, Image)</h2>
+        <form method="post" action="{% url 'store:admin_save_watch' %}" enctype="multipart/form-data" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap:12px; margin-bottom:24px;">
+          {% csrf_token %}
+          <input type="hidden" name="watch_id" id="w-id" />
+          <input type="text" name="brand" id="w-brand" class="aether-input" placeholder="Brand (e.g. Rolex, Casio)" required />
+          <input type="text" name="name" id="w-name" class="aether-input" placeholder="Watch Model Name *" required />
+          <select name="category_id" class="aether-select">{% for c in categories %}<option value="{{ c.id }}">{{ c.name }}</option>{% endfor %}</select>
+          <select name="brand_tier" class="aether-select">{% for val, lbl in tier_choices %}<option value="{{ val }}">{{ lbl }}</option>{% endfor %}</select>
+          <select name="audience" class="aether-select">{% for val, lbl in audience_choices %}<option value="{{ val }}">{{ lbl }}</option>{% endfor %}</select>
+          <input type="number" step="0.01" name="price" id="w-price" class="aether-input" placeholder="Price INR *" required />
+          <input type="number" name="stock" id="w-stock" class="aether-input" value="5" required />
+          <input type="url" name="primary_image_url" id="w-img" class="aether-input" placeholder="Watch Image URL *" required />
+          <input type="url" name="video_url" id="w-vid" class="aether-input" value="" />
+          <label style="display:flex; align-items:center; gap:6px; font-size:0.84rem;"><input type="checkbox" name="is_premium_vault" value="1" /> Premium Vault</label>
+          <label style="display:flex; align-items:center; gap:6px; font-size:0.84rem;"><input type="checkbox" name="is_old_money" value="1" /> Old Money</label>
+          <input type="text" name="description" id="w-desc" class="aether-input" style="grid-column:1/-1;" placeholder="Description *" required />
+          <button type="submit" class="pill-primary-btn">+ Save Watch</button>
+        </form>
+
+        <div style="overflow-x:auto;">
+          <table style="width:100%; border-collapse:collapse; font-size:0.85rem;">
+            <thead><tr style="border-bottom:1px solid rgba(184,196,194,0.3); text-align:left;"><th style="padding:10px;">Photo</th><th>Brand &amp; Model</th><th>Tier</th><th>Wearer</th><th>Price</th><th>Actions</th></tr></thead>
+            <tbody>
+              {% for p in products %}
+                <tr style="border-bottom:1px solid rgba(184,196,194,0.16);">
+                  <td style="padding:10px;"><img src="{{ p.get_image }}" style="width:44px; height:44px; border-radius:10px; object-fit:cover;" /></td>
+                  <td><strong>{{ p.brand }}</strong> — {{ p.name }}</td>
+                  <td>{{ p.brand_tier }}</td>
+                  <td>{{ p.audience }}</td>
+                  <td>₹{{ p.price|floatformat:0 }}</td>
+                  <td>
+                    <form method="post" action="{% url 'store:admin_delete_watch' p.id %}" style="margin:0;">
+                      {% csrf_token %}
+                      <button type="submit" class="pill-badge-btn" style="padding:5px 12px;">Delete</button>
+                    </form>
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Orders & Registered Users -->
+      <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap:24px;">
+        <section class="glass-card slide-up" style="padding:26px;">
+          <h2 style="font-size:1.5rem; margin-bottom:14px;">User Orders &amp; Payments</h2>
+          {% for o in orders %}
+            <div style="padding:12px; border-radius:14px; background:rgba(16,43,42,0.06); margin-bottom:10px;">
+              <strong>{{ o.order_number }}</strong> · {{ o.full_name }} · ₹{{ o.final_amount|floatformat:0 }} ({{ o.status }})
+            </div>
+          {% empty %}<p>No orders yet.</p>{% endfor %}
+        </section>
+
+        <section class="glass-card slide-up" style="padding:26px;">
+          <h2 style="font-size:1.5rem; margin-bottom:14px;">Registered &amp; Logged Users</h2>
+          {% for u in users %}
+            <div style="padding:10px; border-bottom:1px solid rgba(184,196,194,0.2);">
+              <strong>{{ u.profile.full_name|default:u.username }}</strong> ({{ u.email }}) — {% if u.is_staff %}Admin{% else %}Collector{% endif %}
+            </div>
+          {% endfor %}
+        </section>
+      </div>
+    </div>
+  </main>
+{% endblock %}

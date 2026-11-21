@@ -1,0 +1,336 @@
+/* ==========================================================================
+   AETHER HOROLOGY — Built by Tanush Muddapur
+   Light Mode (Warm Ivory #F3F0E8) & Dark Mode (Deep Charcoal #17201F / Midnight Teal #102B2A)
+   ========================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
+
+:root {
+  --midnight-teal: #102B2A;
+  --platinum: #B8C4C2;
+  --warm-ivory: #F3F0E8;
+  --deep-charcoal: #17201F;
+  --secondary-teal: #244441;
+  --mist-accent: #DCE5E0;
+
+  --page-bg: #F3F0E8;
+  --page-bg-alt: rgba(220, 229, 224, 0.36);
+  --surface-card: rgba(255, 255, 255, 0.68);
+  --surface-border: rgba(255, 255, 255, 0.88);
+  --text-main: #17201F;
+  --text-muted: #465755;
+  --heading-color: #102B2A;
+  --nav-bg: rgba(243, 240, 232, 0.68);
+  --nav-border: rgba(255, 255, 255, 0.84);
+  --nav-link: #17201F;
+
+  --metallic-sheen: linear-gradient(135deg, #DCE5E0 0%, #B8C4C2 32%, #8F9E9B 52%, #DCE5E0 78%, #A2B0AD 100%);
+  --metallic-teal: linear-gradient(135deg, #244441 0%, #102B2A 55%, #17201F 100%);
+
+  --font-serif: 'Cormorant Garamond', Georgia, serif;
+  --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif;
+  --ease-aether: cubic-bezier(0.22, 1, 0.36, 1);
+  --radius-pill: 9999px;
+  --radius-xl: 28px;
+}
+
+/* DARK MODE VARIABLES */
+html[data-theme="dark"] {
+  --page-bg: #17201F;
+  --page-bg-alt: rgba(16, 43, 42, 0.48);
+  --surface-card: rgba(243, 240, 232, 0.07);
+  --surface-border: rgba(184, 196, 194, 0.24);
+  --text-main: #F3F0E8;
+  --text-muted: #B8C4C2;
+  --heading-color: #F3F0E8;
+  --nav-bg: rgba(16, 43, 42, 0.65);
+  --nav-border: rgba(184, 196, 194, 0.28);
+  --nav-link: #DCE5E0;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; background: var(--page-bg); color: var(--text-main); font-family: var(--font-sans); transition: background 0.4s ease, color 0.4s ease; }
+body { background: var(--page-bg); color: var(--text-main); line-height: 1.55; overflow-x: hidden; }
+
+h1, h2, h3 { font-family: var(--font-serif); font-weight: 700; line-height: 1.08; letter-spacing: -0.02em; color: var(--heading-color); }
+a { color: inherit; text-decoration: none; }
+img { max-width: 100%; display: block; }
+
+.container { max-width: 1300px; margin: 0 auto; padding: 0 24px; }
+.section-pad { padding: 92px 0; }
+.section-mist { background: var(--page-bg-alt); border-top: 1px solid rgba(184, 196, 194, 0.18); border-bottom: 1px solid rgba(184, 196, 194, 0.18); }
+
+/* ==========================================================================
+   SCROLL & 3D TILT CARD ANIMATIONS
+   ========================================================================== */
+.slide-up { opacity: 0; transform: translateY(42px); transition: opacity 0.85s var(--ease-aether), transform 0.85s var(--ease-aether); }
+.slide-up.in-view { opacity: 1; transform: translateY(0); }
+
+.slide-down { opacity: 0; transform: translateY(-38px); transition: opacity 0.85s var(--ease-aether), transform 0.85s var(--ease-aether); }
+.slide-down.in-view { opacity: 1; transform: translateY(0); }
+
+.fade-scale { opacity: 0; transform: scale(0.94); transition: opacity 0.85s var(--ease-aether), transform 0.85s var(--ease-aether); }
+.fade-scale.in-view { opacity: 1; transform: scale(1); }
+
+/* ==========================================================================
+   UNIFIED FLOATING LIQUID GLASS NAVBAR (Same across User & Admin Pages)
+   ========================================================================== */
+.liquid-nav-wrapper { position: sticky; top: 14px; z-index: 1000; padding: 0 18px; transition: transform 0.45s var(--ease-aether); }
+.liquid-nav-wrapper.nav-hidden { transform: translateY(-130%); }
+
+.liquid-glass-nav {
+  position: relative;
+  max-width: 1320px;
+  margin: 0 auto;
+  padding: 10px 18px 10px 24px;
+  border-radius: var(--radius-pill);
+  background: var(--nav-bg);
+  backdrop-filter: blur(28px) saturate(210%);
+  -webkit-backdrop-filter: blur(28px) saturate(210%);
+  border: 1px solid var(--nav-border);
+  box-shadow: 0 18px 42px -12px rgba(16, 43, 42, 0.25), inset 0 1.5px 1px rgba(255, 255, 255, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.liquid-glass-nav::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: radial-gradient(circle at var(--mouse-x, 50%) var(--mouse-y, 0%), rgba(255,255,255,0.45) 0%, transparent 65%);
+  pointer-events: none;
+}
+
+.nav-brand { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 1.08rem; letter-spacing: 0.14em; color: var(--heading-color); z-index: 1; }
+.brand-emblem { width: 32px; height: 32px; border-radius: 50%; background: var(--metallic-teal); border: 1.5px solid var(--platinum); display: grid; place-items: center; color: var(--warm-ivory); font-size: 0.8rem; }
+
+.nav-links { display: flex; align-items: center; gap: 4px; list-style: none; z-index: 1; }
+.nav-links a { font-size: 0.84rem; font-weight: 600; padding: 7px 13px; border-radius: var(--radius-pill); color: var(--nav-link); transition: all 0.28s ease; }
+.nav-links a:hover, .nav-links a.active { background: rgba(184, 196, 194, 0.22); transform: translateY(-1px); }
+
+.nav-actions { display: flex; align-items: center; gap: 8px; z-index: 1; }
+
+.hamburger-btn { display: none; background: rgba(255,255,255,0.2); border: 1px solid var(--nav-border); color: var(--heading-color); width: 36px; height: 36px; border-radius: 50%; cursor: pointer; }
+@media (max-width: 1060px) {
+  .hamburger-btn { display: grid; place-items: center; }
+  .nav-links {
+    display: none; position: absolute; top: calc(100% + 10px); left: 16px; right: 16px;
+    flex-direction: column; background: var(--page-bg); border: 1px solid var(--surface-border);
+    border-radius: 24px; padding: 20px; box-shadow: 0 24px 50px rgba(0,0,0,0.3);
+  }
+  .nav-links.mobile-open { display: flex; }
+}
+
+/* ==========================================================================
+   BUTTONS
+   ========================================================================== */
+.pill-primary-btn, .pill-metallic-btn, .pill-badge-btn {
+  position: relative; overflow: hidden; display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  border-radius: var(--radius-pill); font-weight: 600; cursor: pointer;
+  transition: transform 0.35s var(--ease-aether), box-shadow 0.35s var(--ease-aether);
+}
+.pill-primary-btn { padding: 9px 18px; font-size: 0.82rem; background: var(--midnight-teal); color: var(--warm-ivory); border: 1px solid rgba(184, 196, 194, 0.45); }
+.pill-primary-btn:hover { transform: translateY(-2px) scale(1.02); background: var(--secondary-teal); box-shadow: 0 12px 24px rgba(16, 43, 42, 0.32); }
+
+.pill-metallic-btn { padding: 10px 20px; font-size: 0.84rem; background: var(--metallic-sheen); color: var(--midnight-teal); border: 1px solid rgba(255, 255, 255, 0.85); }
+.pill-metallic-btn:hover { transform: translateY(-2px) scale(1.02); box-shadow: 0 14px 28px rgba(16, 43, 42, 0.25); }
+
+.pill-badge-btn { padding: 8px 13px; font-size: 0.78rem; background: var(--surface-card); color: var(--heading-color); border: 1px solid var(--surface-border); backdrop-filter: blur(14px); }
+.pill-badge-btn:hover { transform: translateY(-2px); border-color: var(--platinum); }
+
+.count-pill { display: inline-grid; place-items: center; min-width: 18px; height: 18px; padding: 0 5px; border-radius: 999px; background: var(--midnight-teal); color: var(--warm-ivory); font-size: 0.68rem; font-weight: 700; }
+
+/* ==========================================================================
+   LIQUID GLASS WATCH CARDS WITH COLOR SWATCH SWITCHING & GLOW
+   ========================================================================== */
+.glass-card {
+  position: relative;
+  background: var(--surface-card);
+  backdrop-filter: blur(22px) saturate(180%);
+  -webkit-backdrop-filter: blur(22px) saturate(180%);
+  border: 1px solid var(--surface-border);
+  border-radius: var(--radius-xl);
+  box-shadow: 0 20px 44px -16px rgba(16, 43, 42, 0.16);
+  transition: transform 0.45s var(--ease-aether), box-shadow 0.45s var(--ease-aether), border-color 0.35s ease;
+}
+
+.glass-card:hover {
+  transform: translateY(-8px);
+  border-color: var(--platinum);
+  box-shadow: 0 32px 60px -14px rgba(16, 43, 42, 0.28);
+}
+
+.watch-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(285px, 1fr)); gap: 24px; }
+.watch-card { padding: 20px; display: flex; flex-direction: column; justify-content: space-between; }
+
+.watch-media-box { position: relative; height: 260px; border-radius: 20px; overflow: hidden; background: var(--deep-charcoal); margin-bottom: 14px; }
+.watch-media-box img, .watch-media-box video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transition: opacity 0.5s ease, transform 0.65s var(--ease-aether); }
+.watch-media-box video { opacity: 0; pointer-events: none; }
+.watch-card:hover .watch-media-box video.has-video { opacity: 1; transform: scale(1.05); }
+.watch-card:hover .watch-media-box img { transform: scale(1.06); }
+
+/* Interactive Color Swatches on Cards */
+.card-swatch-row { display: flex; align-items: center; gap: 7px; margin: 10px 0; }
+.swatch-circle {
+  width: 18px; height: 18px; border-radius: 50%; border: 2px solid #fff;
+  box-shadow: 0 0 0 1px rgba(16, 43, 42, 0.3); cursor: pointer; transition: transform 0.25s ease;
+}
+.swatch-circle:hover, .swatch-circle.active { transform: scale(1.25); box-shadow: 0 0 0 2px var(--secondary-teal); }
+
+.discount-badge { position: absolute; top: 12px; left: 12px; z-index: 2; padding: 4px 11px; border-radius: var(--radius-pill); background: var(--midnight-teal); color: var(--warm-ivory); font-size: 0.7rem; font-weight: 700; }
+.audience-tag { position: absolute; bottom: 12px; left: 12px; z-index: 2; padding: 4px 10px; border-radius: var(--radius-pill); background: rgba(23, 32, 31, 0.78); color: var(--mist-accent); font-size: 0.68rem; font-weight: 600; }
+.wishlist-heart-btn { position: absolute; top: 12px; right: 12px; z-index: 2; width: 34px; height: 34px; border-radius: 50%; background: rgba(243, 240, 232, 0.9); border: 1px solid rgba(16,43,42,0.16); color: var(--midnight-teal); display: grid; place-items: center; cursor: pointer; }
+.wishlist-heart-btn.saved { background: var(--midnight-teal); color: var(--warm-ivory); }
+
+.eyebrow-pill { display: inline-flex; align-items: center; gap: 6px; padding: 5px 14px; border-radius: var(--radius-pill); background: rgba(16, 43, 42, 0.09); border: 1px solid rgba(184, 196, 194, 0.3); color: var(--heading-color); font-size: 0.72rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 12px; }
+.editorial-header { text-align: center; max-width: 740px; margin: 0 auto 48px; }
+.editorial-header h2 { font-size: clamp(2rem, 4vw, 3.2rem); margin-bottom: 10px; }
+.editorial-header p { color: var(--text-muted); font-size: 1.02rem; }
+
+/* Flipkart-style Product Detail */
+.fk-detail-grid { display: grid; grid-template-columns: 450px 1fr; gap: 38px; align-items: start; }
+@media (max-width: 960px) { .fk-detail-grid { grid-template-columns: 1fr; } }
+.fk-gallery-sticky { position: sticky; top: 96px; display: grid; grid-template-columns: 74px 1fr; gap: 12px; }
+.fk-thumb-col { display: flex; flex-direction: column; gap: 10px; }
+.fk-thumb { width: 70px; height: 70px; border-radius: 14px; object-fit: cover; border: 2px solid transparent; cursor: pointer; }
+.fk-thumb.active, .fk-thumb:hover { border-color: var(--secondary-teal); transform: scale(1.05); }
+
+.offer-box { background: rgba(36, 68, 65, 0.1); border: 1px dashed var(--secondary-teal); border-radius: 18px; padding: 18px; margin: 18px 0; }
+.offer-item { display: flex; align-items: flex-start; gap: 10px; font-size: 0.86rem; margin-bottom: 8px; }
+.offer-tag { padding: 2px 8px; border-radius: 999px; background: var(--midnight-teal); color: var(--warm-ivory); font-size: 0.7rem; font-weight: 700; }
+
+.aether-input, .aether-select, .aether-textarea {
+  width: 100%; padding: 11px 14px; border-radius: 14px; border: 1.5px solid rgba(184, 196, 194, 0.35);
+  background: var(--surface-card); color: var(--text-main); font-family: inherit; font-size: 0.92rem; outline: none;
+}
+.form-label { display: block; font-size: 0.76rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted); margin-bottom: 6px; }
+
+.toast-stack { position: fixed; bottom: 24px; right: 24px; z-index: 2500; display: flex; flex-direction: column; gap: 10px; }
+.aether-toast { padding: 14px 22px; border-radius: var(--radius-pill); background: var(--midnight-teal); color: var(--warm-ivory); border: 1px solid var(--platinum); font-size: 0.88rem; box-shadow: 0 18px 40px rgba(0,0,0,0.35); }
+
+.site-footer { background: var(--deep-charcoal); color: var(--platinum); padding: 68px 0 32px; border-top: 1px solid rgba(184, 196, 194, 0.18); }
+.footer-grid { display: grid; grid-template-columns: 1.4fr 1fr 1fr 1.2fr; gap: 34px; margin-bottom: 44px; }
+@media (max-width: 900px) { .footer-grid { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 560px) { .footer-grid { grid-template-columns: 1fr; } }
+
+
+/* ==========================================================================
+   NAVBAR SINGLE-LINE ALIGNMENT & LIQUID GLASS "MORE ▾" DROPDOWN
+   ========================================================================== */
+.liquid-glass-nav {
+  flex-wrap: nowrap;
+}
+
+.nav-brand,
+.nav-links,
+.nav-links li,
+.nav-links a,
+.nav-actions,
+.nav-compact-btn,
+.nav-dropdown-trigger {
+  white-space: nowrap !important;
+  flex-shrink: 0;
+}
+
+.nav-links {
+  gap: 2px;
+}
+
+.nav-links a {
+  padding: 7px 12px;
+  font-size: 0.83rem;
+}
+
+.nav-compact-btn {
+  padding: 7px 13px !important;
+  font-size: 0.8rem !important;
+  line-height: 1.2;
+}
+
+.premium-nav-pill {
+  background: rgba(36, 68, 65, 0.14);
+  border: 1px solid rgba(16, 43, 42, 0.16);
+  font-weight: 700 !important;
+}
+
+html[data-theme="dark"] .premium-nav-pill {
+  background: rgba(220, 229, 224, 0.16);
+  border-color: rgba(220, 229, 224, 0.28);
+}
+
+/* Liquid Glass Dropdown Menu ("More ▾" for Track Order, About, Contact) */
+.nav-dropdown {
+  position: relative;
+}
+
+.nav-dropdown-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: transparent;
+  border: none;
+  font-family: inherit;
+  font-size: 0.83rem;
+  font-weight: 600;
+  padding: 7px 12px;
+  border-radius: var(--radius-pill);
+  color: var(--nav-link);
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.nav-dropdown-trigger:hover,
+.nav-dropdown-trigger.active {
+  background: rgba(184, 196, 194, 0.24);
+}
+
+.nav-dropdown-menu {
+  position: absolute;
+  top: calc(100% + 12px);
+  left: 0;
+  min-width: 215px;
+  padding: 8px;
+  border-radius: 22px;
+  background: rgba(243, 240, 232, 0.94);
+  backdrop-filter: blur(28px) saturate(210%);
+  -webkit-backdrop-filter: blur(28px) saturate(210%);
+  border: 1px solid rgba(255, 255, 255, 0.9);
+  box-shadow: 0 24px 52px -12px rgba(16, 43, 42, 0.28);
+  display: none;
+  flex-direction: column;
+  gap: 4px;
+  z-index: 1200;
+}
+
+html[data-theme="dark"] .nav-dropdown-menu {
+  background: rgba(23, 32, 31, 0.94);
+  border-color: rgba(184, 196, 194, 0.28);
+  box-shadow: 0 26px 56px rgba(0, 0, 0, 0.65);
+}
+
+.nav-dropdown.open .nav-dropdown-menu,
+.nav-dropdown:hover .nav-dropdown-menu {
+  display: flex;
+}
+
+.nav-dropdown-menu a {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border-radius: 14px;
+  font-size: 0.84rem;
+  font-weight: 600;
+  color: var(--heading-color);
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.nav-dropdown-menu a:hover,
+.nav-dropdown-menu a.active {
+  background: var(--midnight-teal);
+  color: var(--warm-ivory);
+  transform: translateX(3px);
+}
